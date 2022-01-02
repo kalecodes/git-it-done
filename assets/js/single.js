@@ -1,4 +1,5 @@
 var issueContainerEl = document.getElementById("issues-container");
+var limitWarningEl = document.getElementById("limit-warning");
 
 var getRepoIssues = function(repo) {
     var apiUrl = "https://api.github.com/repos/" + repo + "/issues?direction=asc";
@@ -8,6 +9,12 @@ var getRepoIssues = function(repo) {
             response.json().then(function(data) {
                 //pass response data to dom function
                 displayIssues(data);
+
+                //check if api has paginated issues
+                if (response.headers.get("Link")) {
+                    //call to 
+                    displayWarning(repo);
+                }
             })
         } else {
             alert("There was a problem with your request!")
@@ -15,7 +22,7 @@ var getRepoIssues = function(repo) {
     });
 };
 
-getRepoIssues("kalecodes/git-it-done");
+getRepoIssues("facebook/react");
 
 var displayIssues = function(issues) {
     if (issues.length === 0) {
@@ -49,4 +56,18 @@ var displayIssues = function(issues) {
         //append issueEl to container
         issueContainerEl.appendChild(issueEl);
     };
+};
+
+var displayWarning = function(repo) {
+    //add text to warning container
+    limitWarningEl.textContent = "To see more than 30 issues, visit ";
+
+    //append a link element with an href value that points to the repo/issues link
+    var linkEl = document.createElement("a");
+    linkEl.textContent = "See More Issues on GitHub.com";
+    linkEl.setAttribute("href", "https://github.com/" + repo + "/issues");
+    linkEl.setAttribute("target", "_blank");
+
+    //append to warning container
+    limitWarningEl.appendChild(linkEl);
 };
