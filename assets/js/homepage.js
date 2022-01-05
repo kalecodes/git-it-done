@@ -1,6 +1,8 @@
 var repoContainerEl = document.getElementById("repos-container");
 var repoSearchTerm = document.getElementById("repo-search-term");
 
+var languageButtonsEl = document.getElementById("language-buttons");
+
 //funciton that makes request to server
 var getUserRepos = function(user) {
     //format the github api url
@@ -89,3 +91,37 @@ var displayRepos = function(repos, searchTerm) {
         repoContainerEl.appendChild(repoEl);
     }
 };
+
+//new function that accepts a 'language' parameter,
+    //creates an API endpoint
+    //and makes an HTTP request to that endpoint using fetch()
+
+var getFeaturedRepos = function(language) {
+    var apiUrl = "https://api.github.com/search/repositories?q=" + language + "+is:featured&sort=help-wanted-issues";
+
+    //add then() methed (include error handling)
+    fetch(apiUrl).then(function(response) {
+        if (response.ok) {
+            //use a method to extract the JSON from the response 
+            response.json().then(function(data) {
+                //pass data.items and the 'language' parameter's value into displayRepos
+                displayRepos(data.items, language);
+            });
+        } else {
+            alert("Error: GitHub User Not Found");
+        }
+    });
+};
+
+var buttonClickHandler = function(event) {
+    var language = event.target.getAttribute("data-language");
+
+    if (language) {
+        getFeaturedRepos(language);
+        //clear old content
+        //this will always execute first since getFeaturedRepos is asynchronous and will take longer 
+        repoContainerEl.textContent = "";
+    } 
+}
+
+languageButtonsEl.addEventListener("click", buttonClickHandler);
